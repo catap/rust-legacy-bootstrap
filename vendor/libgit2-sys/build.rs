@@ -136,8 +136,6 @@ fn main() {
 
         if windows {
             features.push_str("#define GIT_WINHTTP 1\n");
-        } else if target.contains("apple") {
-            features.push_str("#define GIT_SECURE_TRANSPORT 1\n");
         } else {
             features.push_str("#define GIT_OPENSSL 1\n");
             if let Some(path) = env::var_os("DEP_OPENSSL_INCLUDE") {
