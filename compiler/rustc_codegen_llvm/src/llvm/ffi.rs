@@ -2144,6 +2144,7 @@ extern "C" {
         Singlethread: bool,
         AsmComments: bool,
         EmitStackSizeSection: bool,
+        EnforceEmulatedTLS: bool,
         RelaxELFRelocations: bool,
         UseInitArray: bool,
         SplitDwarfFile: *const c_char,

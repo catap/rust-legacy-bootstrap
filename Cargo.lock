@@ -4915,6 +4915,7 @@ version = "0.0.0"
 dependencies = [
  "addr2line",
  "alloc",
+ "cc",
  "cfg-if 0.1.10",
  "compiler_builtins",
  "core",

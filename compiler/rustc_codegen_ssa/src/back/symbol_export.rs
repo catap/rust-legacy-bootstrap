@@ -400,6 +400,53 @@ fn symbol_export_level(tcx: TyCtxt<'_>, sym_def_id: DefId) -> SymbolExportLevel 
     }
 }
 
+fn maybe_emutls<'tcx>(
+    tcx: TyCtxt<'tcx>,
+    def_id: DefId,
+    name: String,
+) -> String {
+    if tcx.codegen_fn_attrs(def_id).flags.contains(CodegenFnAttrFlags::THREAD_LOCAL) {
+        ["__emutls_v", &name].join(".").to_string()
+    } else {
+        name
+    }
+}
+
+/// This is the symbol name of the given instance instantiated in a specific crate.
+/// with may starts from `__emutls_v.` prefix
+pub fn symbol_name_for_instance_in_crate_maybe_emutls<'tcx>(
+    tcx: TyCtxt<'tcx>,
+    symbol: ExportedSymbol<'tcx>,
+    instantiating_crate: CrateNum,
+) -> String {
+    if !tcx.sess.target.enforce_emulated_tls {
+        return symbol_name_for_instance_in_crate(tcx, symbol, instantiating_crate);
+    }
+
+    match symbol {
+        ExportedSymbol::NonGeneric(def_id) => {
+            maybe_emutls(tcx, def_id, rustc_symbol_mangling::symbol_name_for_instance_in_crate(
+                tcx,
+                Instance::mono(tcx, def_id),
+                instantiating_crate,
+            ))
+        }
+        ExportedSymbol::Generic(def_id, substs) => {
+            maybe_emutls(tcx, def_id, rustc_symbol_mangling::symbol_name_for_instance_in_crate(
+                tcx,
+                Instance::new(def_id, substs),
+                instantiating_crate,
+            ))
+        }
+        ExportedSymbol::DropGlue(ty) => rustc_symbol_mangling::symbol_name_for_instance_in_crate(
+            tcx,
+            Instance::resolve_drop_in_place(tcx, ty),
+            instantiating_crate,
+        ),
+        ExportedSymbol::NoDefId(symbol_name) => symbol_name.to_string(),
+    }
+}
+
 /// This is the symbol name of the given instance instantiated in a specific crate.
 pub fn symbol_name_for_instance_in_crate<'tcx>(
     tcx: TyCtxt<'tcx>,

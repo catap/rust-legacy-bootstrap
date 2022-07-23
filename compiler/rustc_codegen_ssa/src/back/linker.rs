@@ -1297,7 +1297,7 @@ fn exported_symbols(tcx: TyCtxt<'_>, crate_type: CrateType) -> Vec<String> {
     let export_threshold = symbol_export::crates_export_threshold(&[crate_type]);
     for &(symbol, level) in tcx.exported_symbols(LOCAL_CRATE).iter() {
         if level.is_below_threshold(export_threshold) {
-            symbols.push(symbol_export::symbol_name_for_instance_in_crate(
+            symbols.push(symbol_export::symbol_name_for_instance_in_crate_maybe_emutls(
                 tcx,
                 symbol,
                 LOCAL_CRATE,
@@ -1318,7 +1318,7 @@ fn exported_symbols(tcx: TyCtxt<'_>, crate_type: CrateType) -> Vec<String> {
                     continue;
                 }
 
-                symbols.push(symbol_export::symbol_name_for_instance_in_crate(tcx, symbol, cnum));
+                symbols.push(symbol_export::symbol_name_for_instance_in_crate_maybe_emutls(tcx, symbol, cnum));
             }
         }
     }

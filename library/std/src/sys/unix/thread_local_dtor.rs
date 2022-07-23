@@ -57,11 +57,19 @@ pub unsafe fn register_dtor(t: *mut u8, dtor: unsafe extern "C" fn(*mut u8)) {
 pub unsafe fn register_dtor(t: *mut u8, dtor: unsafe extern "C" fn(*mut u8)) {
     use crate::cell::Cell;
     use crate::ptr;
+    use crate::sys_common::thread_local_key::StaticKey;
+
+    #[thread_local]
+    #[cfg(target_enforce_emulated_tls)]
+    static STATIC_DTORS: StaticKey = StaticKey::new(Some(run_dtors));
 
     #[thread_local]
     static REGISTERED: Cell<bool> = Cell::new(false);
     if !REGISTERED.get() {
+        #[cfg(not(target_enforce_emulated_tls))]
         _tlv_atexit(run_dtors, ptr::null_mut());
+        #[cfg(target_enforce_emulated_tls)]
+        DTORS.set(ptr::null_mut());
         REGISTERED.set(true);
     }
 
@@ -75,6 +83,7 @@ pub unsafe fn register_dtor(t: *mut u8, dtor: unsafe extern "C" fn(*mut u8)) {
     }
 
     extern "C" {
+        #[cfg(not(target_enforce_emulated_tls))]
         fn _tlv_atexit(dtor: unsafe extern "C" fn(*mut u8), arg: *mut u8);
     }
 

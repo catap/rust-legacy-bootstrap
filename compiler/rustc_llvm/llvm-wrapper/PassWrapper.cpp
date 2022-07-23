@@ -452,6 +452,7 @@ extern "C" LLVMTargetMachineRef LLVMRustCreateTargetMachine(
     bool Singlethread,
     bool AsmComments,
     bool EmitStackSizeSection,
+    bool EnforceEmulatedTLS,
     bool RelaxELFRelocations,
     bool UseInitArray,
     const char *SplitDwarfFile) {
@@ -499,6 +500,11 @@ extern "C" LLVMTargetMachineRef LLVMRustCreateTargetMachine(
   }
 
   Options.EmitStackSizeSection = EmitStackSizeSection;
+
+  if (EnforceEmulatedTLS) {
+    Options.EmulatedTLS = true;
+    Options.ExplicitEmulatedTLS = true;
+  }
 
   TargetMachine *TM = TheTarget->createTargetMachine(
       Trip.getTriple(), CPU, Feature, Options, RM, CM, OptLevel);

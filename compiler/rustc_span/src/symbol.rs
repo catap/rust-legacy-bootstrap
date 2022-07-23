@@ -1196,6 +1196,7 @@ symbols! {
         t32,
         target_arch,
         target_endian,
+        target_enforce_emulated_tls,
         target_env,
         target_family,
         target_feature,

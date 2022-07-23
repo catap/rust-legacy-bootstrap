@@ -832,6 +832,9 @@ fn default_configuration(sess: &Session) -> CrateConfig {
     if sess.target.has_elf_tls {
         ret.insert((sym::target_thread_local, None));
     }
+    if sess.target.enforce_emulated_tls {
+        ret.insert((sym::target_enforce_emulated_tls, None));
+    }
     for &(i, align) in &[
         (8, layout.i8_align.abi),
         (16, layout.i16_align.abi),

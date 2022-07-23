@@ -18,6 +18,13 @@ fn main() {
         println!("cargo:rustc-link-lib=static={}", name);
     }
 
+    if cfg!(target_os = "macos") && cfg!(target_enforce_emulated_tls) {
+        let mut emutls_cfg = cc::Build::new();
+        emutls_cfg.warnings(false);
+        emutls_cfg.file("../../src/llvm-project/compiler-rt/lib/builtins/emutls.c")
+           .compile("emutls");
+    }
+
     println!("cargo:rerun-if-changed=build.rs");
     let target = env::var("TARGET").expect("TARGET was not set");
     if target.contains("freebsd") {

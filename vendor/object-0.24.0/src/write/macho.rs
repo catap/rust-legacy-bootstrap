@@ -110,7 +110,7 @@ impl Object {
     /// If `symbol_id` is not for a TLS variable, then it is returned unchanged.
     pub(crate) fn macho_add_thread_var(&mut self, symbol_id: SymbolId) -> SymbolId {
         let symbol = self.symbol_mut(symbol_id);
-        if symbol.kind != SymbolKind::Tls {
+        if symbol.kind != SymbolKind::Tls || cfg!(target_enforce_emulated_tls) {
             return symbol_id;
         }
 

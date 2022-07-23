@@ -188,6 +188,8 @@ pub fn target_machine_factory(
     let use_init_array =
         !sess.opts.debugging_opts.use_ctors_section.unwrap_or(sess.target.use_ctors_section);
 
+    let enforce_emulated_tls = sess.target.enforce_emulated_tls;
+
     Arc::new(move |config: TargetMachineFactoryConfig| {
         let split_dwarf_file = config.split_dwarf_file.unwrap_or_default();
         let split_dwarf_file = CString::new(split_dwarf_file.to_str().unwrap()).unwrap();
@@ -208,6 +210,7 @@ pub fn target_machine_factory(
                 singlethread,
                 asm_comments,
                 emit_stack_size_section,
+                enforce_emulated_tls,
                 relax_elf_relocations,
                 use_init_array,
                 split_dwarf_file.as_ptr(),
